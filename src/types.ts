@@ -30,6 +30,15 @@ interface DeleteAction {
   payload: string; // Solo el ID
 }
 
-export type TaskAction = ToggleAction | AddAction | EditAction | DeleteAction;
+interface DeleteAllAction {
+  type: "DELETE_ALL_TASKS"
+  payload?: any
+}
+interface DeleteDoneAction {
+  type: "DELETE_DONE_TASKS"
+  payload?: any
+}
+
+export type TaskAction = ToggleAction | AddAction | EditAction | DeleteAction | DeleteAllAction | DeleteDoneAction;
 
 export type TasksReducerType = (state: TaskType[], action: TaskAction) => TaskType[]

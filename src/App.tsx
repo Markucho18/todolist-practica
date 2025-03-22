@@ -3,6 +3,8 @@ import { TaskType, TasksReducerType } from "./types"
 import Task from "./components/Task"
 import { MdLibraryBooks } from "react-icons/md";
 
+type FilterType = "All" | "Done" | "Todo"
+
 const App: React.FC = () => {
 
   const initialTasks: TaskType[] = []
@@ -32,6 +34,13 @@ const App: React.FC = () => {
         const newState = state.filter(task => task.id !== payload)
         return newState
       }
+      case "DELETE_ALL_TASKS": {
+        return []
+      }
+      case "DELETE_DONE_TASKS": {
+        const newState = state.filter(task => task.state === false)
+        return newState
+      }
       default: return state
     }
   }
@@ -57,7 +66,29 @@ const App: React.FC = () => {
     dispatch({type: "DELETE", payload: taskId})
   }
 
+  const deleteAllTasks = () => dispatch({type: "DELETE_ALL_TASKS"})
+
+  const deleteDoneTasks = () => dispatch({type: "DELETE_DONE_TASKS"})
+  
   const [tasks, dispatch] = useReducer(tasksReducer, initialTasks)
+
+  const [filteredTasks, setFilteredTasks] = useState(tasks)
+
+  const [filter, setFilter] = useState<FilterType>("All")
+
+  const newFilteredTasks = {
+    "All": tasks,
+    "Done": tasks.filter(task => task.state === true),
+    "Todo": tasks.filter(task => task.state === false)
+  }
+
+  useEffect(()=>{
+    setFilteredTasks(newFilteredTasks[filter])
+  },[filter, tasks])
+
+  useEffect(()=>{
+    console.log("FiteredTasks: ", filteredTasks)
+  },[filteredTasks])
 
   const [taskInput, setTaskInput] = useState("")
 
@@ -76,7 +107,7 @@ const App: React.FC = () => {
   },[tasks])
 
   return (
-    <div className="flex flex-col gap-4 w-[1000px] max-h-full">
+    <div className="flex flex-col gap-4 w-[1000px] h-screen">
       <header className="flex flex-col w-full mt-2">
         <h1 className="text-4xl w-full text-center my-4">To-Do List</h1>
         <form
@@ -103,15 +134,39 @@ const App: React.FC = () => {
           </button>
         </form>
       </header>
-      <main className="flex flex-col flex-1 w-full gap-4">
+      <main className="flex flex-1 flex-col w-full gap-4 min-h-0">
         <h1 className="w-full text-center text-4xl">Tasks</h1>
-        <div className="flex gap-4">
-          <button className="flex flex-1 justify-center py-2 bg-blue-400 hover:bg-blue-500 rounded-md text-lg text-white">All</button>
-          <button className="flex flex-1 justify-center py-2 bg-blue-400 hover:bg-blue-500 rounded-md text-lg text-white">Done</button>
-          <button className="flex flex-1 justify-center py-2 bg-blue-400 hover:bg-blue-500 rounded-md text-lg text-white">To do</button>
+        <div className="flex rounded-md overflow-hidden">
+          <button
+             className={`
+              flex flex-1 justify-center py-2 bg-blue-400 text-lg text-white transition-all duration-100 ease-in-out
+              ${filter === "All" && " bg-blue-500"}
+             `}
+             onClick={() => setFilter("All")}
+           >
+            All
+          </button>
+          <button
+             className={`
+              flex flex-1 justify-center py-2 bg-blue-400 text-lg text-white transition-all duration-100 ease-in-out
+              ${filter === "Done" && " bg-blue-500"}
+            `}
+            onClick={() => setFilter("Done")}
+           >
+            Done
+          </button>
+          <button
+            className={`
+              flex flex-1 justify-center py-2 bg-blue-400 text-lg text-white transition-all duration-100 ease-in-out
+              ${filter === "Todo" && " bg-blue-500"}
+            `}
+            onClick={() => setFilter("Todo")}
+          >
+            To do 
+          </button>
         </div>
-        <ul className="flex flex-col gap-2 max-h-full overflow-y-scroll">
-          {tasks.length > 0 && tasks.map((task, i)=>(
+        <ul className="flex flex-1 flex-col gap-2 overflow-y-auto">
+          {filteredTasks.length > 0 ? filteredTasks.map((task, i)=>(
             <Task
               key={i}
               {...task}
@@ -119,12 +174,24 @@ const App: React.FC = () => {
               editTask={editTask}
               deleteTask={deleteTask}
             />
-          ))}
+          )) : (
+            <p className="text-zinc-400 text-2xl">No tasks yet.</p>
+          )}
         </ul>
       </main>
-      <footer className="flex gap-4 w-full">
-          <button className="flex justify-center py-2 text-white text-xl flex-1 bg-red-500 hover:bg-red-600 rounded-md">Delete Done Tasks</button>
-          <button className="flex justify-center py-2 text-white text-xl flex-1 bg-red-500 hover:bg-red-600 rounded-md">Delete All Tasks</button>
+      <footer className="flex gap-4 w-full mb-4">
+          <button 
+            className="flex justify-center py-2 text-white text-xl flex-1 bg-red-500 hover:bg-red-600 rounded-md"
+            onClick={deleteDoneTasks}
+          >
+            Delete Done Tasks
+          </button>
+          <button 
+            className="flex justify-center py-2 text-white text-xl flex-1 bg-red-500 hover:bg-red-600 rounded-md"
+            onClick={deleteAllTasks}
+          >
+            Delete All Tasks
+          </button>
       </footer>
       
     </div>
