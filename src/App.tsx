@@ -107,7 +107,7 @@ const App: React.FC = () => {
   },[tasks])
 
   return (
-    <div className="flex flex-col gap-4 w-[1000px] h-screen">
+    <div className="flex flex-col gap-4 w-full px-4 lg:w-[1000px] lg:px-0 h-screen">
       <header className="flex flex-col w-full mt-2">
         <h1 className="text-4xl w-full text-center my-4">To-Do List</h1>
         <form
@@ -123,6 +123,7 @@ const App: React.FC = () => {
               onChange={handleTaskInput}
               value={taskInput}
               placeholder="Task name"
+              maxLength={50}
               className="flex flex-1 w-full p-3 text-xl focus:outline-none"
             />
           </label>
@@ -165,7 +166,7 @@ const App: React.FC = () => {
             To do 
           </button>
         </div>
-        <ul className="flex flex-1 flex-col gap-2 overflow-y-auto">
+        <ul className="flex flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden">
           {filteredTasks.length > 0 ? filteredTasks.map((task, i)=>(
             <Task
               key={i}
